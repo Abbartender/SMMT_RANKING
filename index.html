@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Ranking Antro</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#080810;color:#fff;font-family:'Bebas Neue',Impact,sans-serif;min-height:100vh;}
+input{font-family:monospace;color:#fff;}
+input::placeholder{color:#444;}
+button{cursor:pointer;}
+
+@keyframes glow{0%,100%{box-shadow:0 0 50px rgba(255,0,128,0.18);}50%{box-shadow:0 0 70px rgba(255,0,128,0.35);}}
+@keyframes urgencyPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes shimmer{0%{transform:translateX(-150%)}100%{transform:translateX(400%)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes pop{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes qrPulse{0%,100%{opacity:0.85;transform:scale(1);}50%{opacity:1;transform:scale(1.02);}}
+
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+.screen-center{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;}
+.screen-center.active{display:flex;}
+
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 60%, rgba(255,0,128,0.12) 0%, transparent 55%),
+             radial-gradient(ellipse at 85% 15%, rgba(0,200,255,0.09) 0%, transparent 55%);}
+
+#dj-trigger{position:fixed;bottom:14px;right:14px;z-index:9999;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  color:rgba(255,255,255,0.12);font-size:14px;line-height:36px;}
+
+.song-btn{display:flex;flex-direction:column;padding:11px 14px;
+  border:1px solid rgba(255,255,255,0.06);border-radius:10px;
+  background:rgba(255,255,255,0.04);color:#fff;text-align:left;
+  transition:all 0.15s ease;width:100%;margin-bottom:7px;}
+.song-btn.leader{background:rgba(255,0,128,0.1);border-color:rgba(255,0,128,0.35);}
+.song-btn:active{transform:scale(0.97);}
+
+.bar-track{border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;}
+.bar-shimmer{position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%);
+  animation:shimmer 1.8s linear infinite;}
+
+#editor{position:fixed;inset:0;z-index:200;background:rgba(8,8,16,0.97);
+  display:none;flex-direction:column;overflow:hidden;}
+#editor.open{display:flex;}
+
+/* QR config modal */
+#qr-config{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.88);
+  display:none;align-items:center;justify-content:center;}
+#qr-config.open{display:flex;}
+#qr-config-box{background:#0f0f1a;border:1px solid rgba(0,200,255,0.3);border-radius:14px;
+  padding:28px 24px;width:90%;max-width:380px;animation:fadeIn 0.2s ease;}
+
+.inp{padding:10px 14px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);border-radius:8px;
+  color:#fff;font-size:0.9rem;font-family:monospace;outline:none;width:100%;}
+.pin-btn{padding:18px 0;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);border-radius:10px;
+  color:#fff;font-size:1.4rem;font-family:'Bebas Neue',Impact,sans-serif;}
+.pin-btn:active{background:rgba(255,0,128,0.2);}
+
+/* QR sidebar fixed */
+#qr-sidebar{position:fixed;bottom:20px;left:20px;z-index:100;
+  display:none;flex-direction:column;align-items:center;gap:8px;
+  animation:qrPulse 3s ease-in-out infinite;}
+#qr-sidebar.visible{display:flex;}
+#qr-wrap{background:#fff;border-radius:10px;padding:10px;
+  box-shadow:0 0 30px rgba(255,0,128,0.25), 0 0 60px rgba(0,200,255,0.1);}
+#qr-label{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.4);
+  font-family:monospace;text-align:center;}
+#qr-scan-label{font-size:11px;letter-spacing:3px;color:#ff0080;
+  font-family:monospace;text-align:center;}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ══════════════════════════════════════════
+     VOTER SCREEN
+══════════════════════════════════════════ -->
+<div id="voter-screen" class="screen active">
+  <div style="padding:22px 16px 12px;text-align:center;">
+    <div style="font-size:10px;letter-spacing:6px;color:#ff0080;font-family:monospace;">VOTÁ AHORA</div>
+    <h2 style="font-size:clamp(1.5rem,5vw,2rem);margin:4px 0 2px;letter-spacing:3px;">¿QUÉ SUENA DESPUÉS?</h2>
+    <div style="font-size:10px;color:#444;font-family:monospace;letter-spacing:2px;">UN VOTO · SIN REGISTRO</div>
+  </div>
+  <div id="voter-list" style="padding:8px 12px 80px;"></div>
+
+  <div id="voted-confirm" style="display:none;min-height:100vh;flex-direction:column;
+    align-items:center;justify-content:center;padding:28px;text-align:center;
+    position:fixed;inset:0;background:#080810;z-index:10;">
+    <div style="font-size:4.5rem;margin-bottom:18px;animation:pop 0.4s ease;">🎶</div>
+    <div style="font-size:11px;letter-spacing:6px;color:#ff0080;font-family:monospace;margin-bottom:6px;">VOTASTE POR</div>
+    <div id="voted-title" style="font-size:clamp(1.6rem,5vw,2.2rem);letter-spacing:2px;margin-bottom:4px;"></div>
+    <div id="voted-artist" style="font-size:13px;color:#666;font-family:monospace;"></div>
+    <div style="margin-top:36px;padding:14px 24px;border:1px solid rgba(255,0,128,0.2);
+      border-radius:10px;font-size:12px;color:#555;font-family:monospace;letter-spacing:2px;line-height:1.8;">
+      SI LLEGA AL #1<br/>EL DJ LA PONE 🔥
+    </div>
+  </div>
+  <button id="dj-trigger" onclick="openPin()">🎛</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PIN SCREEN
+══════════════════════════════════════════ -->
+<div id="pin-screen" class="screen-center" style="user-select:none;">
+  <div style="position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 40%, rgba(255,0,128,0.1) 0%, transparent 60%);"></div>
+  <div style="position:relative;z-index:1;text-align:center;width:100%;max-width:320px;padding:0 24px;">
+    <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.7;">🎛️</div>
+    <div style="font-size:11px;letter-spacing:6px;color:#ff0080;font-family:monospace;margin-bottom:6px;">ACCESO DJ / VJ</div>
+    <div style="font-size:1.8rem;letter-spacing:3px;margin-bottom:32px;">INGRESÁ TU PIN</div>
+    <div id="pin-dots" style="display:flex;justify-content:center;gap:14px;margin-bottom:36px;"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+      <button class="pin-btn" onclick="pinKey('1')">1</button>
+      <button class="pin-btn" onclick="pinKey('2')">2</button>
+      <button class="pin-btn" onclick="pinKey('3')">3</button>
+      <button class="pin-btn" onclick="pinKey('4')">4</button>
+      <button class="pin-btn" onclick="pinKey('5')">5</button>
+      <button class="pin-btn" onclick="pinKey('6')">6</button>
+      <button class="pin-btn" onclick="pinKey('7')">7</button>
+      <button class="pin-btn" onclick="pinKey('8')">8</button>
+      <button class="pin-btn" onclick="pinKey('9')">9</button>
+      <div></div>
+      <button class="pin-btn" onclick="pinKey('0')">0</button>
+      <button onclick="pinDel()" style="padding:18px 0;background:transparent;border:none;color:#555;font-size:1.2rem;">⌫</button>
+    </div>
+    <div id="pin-error" style="display:none;font-size:11px;color:#ff0040;font-family:monospace;letter-spacing:3px;">PIN INCORRECTO</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     DJ SCREEN
+══════════════════════════════════════════ -->
+<div id="dj-screen" class="screen">
+  <div class="ambient"></div>
+  <div style="position:relative;z-index:1;max-width:800px;margin:0 auto;padding:20px 24px 20px 24px;">
+
+    <div style="text-align:center;margin-bottom:18px;position:relative;">
+      <div style="font-size:10px;letter-spacing:8px;color:#ff0080;font-family:monospace;margin-bottom:2px;">▶ EN VIVO · SE ACTUALIZA SOLO</div>
+      <h1 style="margin:0;font-size:clamp(2rem,5vw,3.2rem);letter-spacing:4px;
+        background:linear-gradient(90deg,#fff 0%,#ff0080 55%,#00c8ff 100%);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;">ELIGE LA PRÓXIMA</h1>
+      <div style="position:absolute;top:0;right:0;display:flex;gap:6px;">
+        <button onclick="openQrConfig()" style="padding:5px 10px;background:rgba(0,200,255,0.1);
+          border:1px solid rgba(0,200,255,0.25);border-radius:5px;color:#00c8ff;
+          font-family:monospace;font-size:9px;letter-spacing:2px;">QR</button>
+        <button onclick="djLogout()" style="padding:5px 10px;background:transparent;
+          border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#333;
+          font-family:monospace;font-size:9px;letter-spacing:2px;">SALIR</button>
+      </div>
+    </div>
+
+    <div id="dj-hero" style="display:none;background:linear-gradient(135deg,rgba(255,0,128,0.18),rgba(0,200,255,0.08));
+      border:1px solid rgba(255,0,128,0.45);border-radius:14px;padding:14px 20px;margin-bottom:16px;
+      align-items:center;gap:16px;animation:glow 2.5s ease-in-out infinite;">
+      <span style="font-size:2rem;">🏆</span>
+      <div style="flex:1;">
+        <div style="font-size:10px;color:#ff0080;letter-spacing:5px;font-family:monospace;">LIDERA EL RANKING</div>
+        <div id="hero-title" style="font-size:clamp(1.1rem,2.2vw,1.6rem);letter-spacing:2px;"></div>
+        <div id="hero-artist" style="font-size:11px;color:#888;font-family:monospace;"></div>
+      </div>
+      <div style="text-align:right;">
+        <div id="hero-votes" style="font-size:clamp(1.6rem,3vw,2.4rem);color:#ff0080;line-height:1;"></div>
+        <div style="font-size:10px;color:#555;font-family:monospace;letter-spacing:2px;">VOTOS</div>
+      </div>
+    </div>
+
+    <div id="dj-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+    <div style="display:flex;justify-content:center;gap:10px;margin-top:22px;flex-wrap:wrap;">
+      <button onclick="openEditor()" style="padding:8px 20px;background:rgba(0,200,255,0.1);
+        border:1px solid rgba(0,200,255,0.3);border-radius:6px;color:#00c8ff;
+        font-family:monospace;font-size:11px;letter-spacing:3px;">✎ EDITAR PLAYLIST</button>
+      <button onclick="resetVotes()" style="padding:8px 20px;background:transparent;
+        border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#444;
+        font-family:monospace;font-size:11px;letter-spacing:3px;">⟳ NUEVA RONDA</button>
+    </div>
+  </div>
+
+  <!-- QR fijo esquina inferior izquierda -->
+  <div id="qr-sidebar" class="visible" style="display:none;">
+    <div id="qr-scan-label">📱 ESCANEÁ Y VOTÁ</div>
+    <div id="qr-wrap"><div id="qr-code"></div></div>
+    <div id="qr-label">APUNTÁ LA CÁMARA</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     EDITOR OVERLAY
+══════════════════════════════════════════ -->
+<div id="editor">
+  <div style="padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div>
+      <div style="font-size:10px;color:#ff0080;letter-spacing:5px;font-family:monospace;">PANEL DJ</div>
+      <div style="font-size:1.6rem;letter-spacing:3px;">EDITAR PLAYLIST</div>
+    </div>
+    <button onclick="closeEditor()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);
+      border-radius:6px;color:#555;padding:6px 14px;font-family:monospace;font-size:10px;letter-spacing:2px;">✕ CERRAR</button>
+  </div>
+  <div style="padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);
+    display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+    <input id="new-title" class="inp" placeholder="Título" style="flex:2 1 160px;"
+      onkeydown="if(event.key==='Enter') addSong()"/>
+    <input id="new-artist" class="inp" placeholder="Artista" style="flex:1 1 120px;"
+      onkeydown="if(event.key==='Enter') addSong()"/>
+    <button onclick="addSong()" style="padding:10px 18px;background:rgba(255,0,128,0.2);
+      border:1px solid rgba(255,0,128,0.4);border-radius:8px;color:#ff0080;
+      font-family:monospace;font-size:11px;letter-spacing:2px;">+ AGREGAR</button>
+  </div>
+  <div id="editor-list" style="flex:1;overflow-y:auto;padding:12px 24px;"></div>
+  <div style="padding:16px 24px;border-top:1px solid rgba(255,255,255,0.08);
+    display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+    <div id="editor-count" style="font-size:11px;color:#444;font-family:monospace;letter-spacing:2px;"></div>
+    <button onclick="saveEditor()" style="padding:10px 30px;background:rgba(255,0,128,0.25);
+      border:1px solid rgba(255,0,128,0.5);border-radius:8px;color:#ff0080;
+      font-family:monospace;font-size:12px;letter-spacing:3px;">✓ GUARDAR Y APLICAR</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     QR CONFIG MODAL
+══════════════════════════════════════════ -->
+<div id="qr-config">
+  <div id="qr-config-box">
+    <div style="font-size:10px;color:#00c8ff;letter-spacing:5px;font-family:monospace;margin-bottom:4px;">CONFIGURAR QR</div>
+    <div style="font-size:1.4rem;letter-spacing:2px;margin-bottom:16px;">URL DE VOTACIÓN</div>
+    <div style="font-size:11px;color:#555;font-family:monospace;letter-spacing:1px;margin-bottom:10px;line-height:1.6;">
+      Pegá la URL donde subiste la app.<br/>Esa es la que van a escanear.
+    </div>
+    <input id="qr-url-input" class="inp" placeholder="https://tu-app.netlify.app"
+      style="margin-bottom:14px;" onkeydown="if(event.key==='Enter') applyQr()"/>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeQrConfig()" style="padding:9px 18px;background:transparent;
+        border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#555;
+        font-family:monospace;font-size:10px;letter-spacing:2px;">CANCELAR</button>
+      <button onclick="applyQr()" style="padding:9px 20px;background:rgba(0,200,255,0.2);
+        border:1px solid rgba(0,200,255,0.4);border-radius:7px;color:#00c8ff;
+        font-family:monospace;font-size:11px;letter-spacing:2px;">✓ GENERAR QR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────────
+const DJ_PIN   = "2025";
+const VOTES_KEY = "antro-votes";
+const SONGS_KEY = "antro-songs";
+const VOTED_KEY = "antro-voted";
+const QR_URL_KEY = "antro-qr-url";
+
+const DEFAULT_SONGS = [
+  {id:1, title:"Tití Me Preguntó",         artist:"Bad Bunny"},
+  {id:2, title:"La Bebe",                  artist:"Yng Lvcas & Peso Pluma"},
+  {id:3, title:"Shakira: Bzrp Session 53", artist:"Bizarrap"},
+  {id:4, title:"Ella Baila Sola",          artist:"Eslabon Armado & Peso Pluma"},
+  {id:5, title:"Flowers",                  artist:"Miley Cyrus"},
+  {id:6, title:"Cayó La Noche",            artist:"Jhay Cortez"},
+  {id:7, title:"Quevedo: Bzrp Session 52", artist:"Bizarrap"},
+  {id:8, title:"Mañana Será Bonito",       artist:"Karol G"},
+  {id:9, title:"Un Verano Sin Ti",         artist:"Bad Bunny"},
+  {id:10,title:"Me Porto Bonito",          artist:"Bad Bunny & Chencho"},
+];
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let songs = [], votes = {}, userVotedId = null, editorList = [], pollInterval = null;
+let qrInstance = null;
+
+// ── Storage ────────────────────────────────────────────────────────────────────
+const ls = {
+  get(k){ try{return localStorage.getItem(k)}catch{return null} },
+  set(k,v){ try{localStorage.setItem(k,v)}catch{} },
+  del(k){ try{localStorage.removeItem(k)}catch{} }
+};
+
+function loadSongs(){
+  const r=ls.get(SONGS_KEY); if(r) try{return JSON.parse(r)}catch{}
+  ls.set(SONGS_KEY,JSON.stringify(DEFAULT_SONGS));
+  return DEFAULT_SONGS.map(s=>({...s}));
+}
+function saveSongsLS(s){ ls.set(SONGS_KEY,JSON.stringify(s)); }
+function loadVotes(){ const r=ls.get(VOTES_KEY); if(r) try{return JSON.parse(r)}catch{} return {}; }
+function saveVotesLS(v){ ls.set(VOTES_KEY,JSON.stringify(v)); }
+function hasVoted(){ return ls.get(VOTED_KEY+"_"+FP)!==null; }
+function markVoted(id){ ls.set(VOTED_KEY+"_"+FP,String(id)); }
+function getVotedId(){ const v=ls.get(VOTED_KEY+"_"+FP); return v?Number(v):null; }
+function isDJ(){ return ls.get("antro-dj")==="true"; }
+function setDJ(v){ v?ls.set("antro-dj","true"):ls.del("antro-dj"); }
+
+// ── Fingerprint ────────────────────────────────────────────────────────────────
+function getFingerprint(){
+  let fp=sessionStorage.getItem("antro-fp"); if(fp) return fp;
+  const raw=[navigator.userAgent,navigator.language,screen.width+"x"+screen.height,
+    screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0].join("|");
+  let h=0; for(let i=0;i<raw.length;i++) h=(Math.imul(31,h)+raw.charCodeAt(i))|0;
+  fp="fp_"+Math.abs(h).toString(36)+"_"+Date.now().toString(36);
+  sessionStorage.setItem("antro-fp",fp); return fp;
+}
+const FP = getFingerprint();
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+function init(){
+  songs=loadSongs(); votes=loadVotes();
+  if(isDJ()){ showDJ(); return; }
+  if(hasVoted()){ userVotedId=getVotedId(); showVotedConfirm(); }
+  else renderVoter();
+  pollInterval=setInterval(syncVoter,2500);
+}
+
+function syncVoter(){ votes=loadVotes(); songs=loadSongs(); if(!hasVoted()) renderVoter(); }
+function syncDJ()   { votes=loadVotes(); songs=loadSongs(); renderDJ(); }
+
+// ── Screen switching ───────────────────────────────────────────────────────────
+function show(id){
+  document.querySelectorAll('.screen,.screen-center').forEach(el=>el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showDJ(){
+  show('dj-screen');
+  clearInterval(pollInterval);
+  pollInterval=setInterval(syncDJ,2500);
+  renderDJ();
+  // Restore QR if URL saved
+  const saved=ls.get(QR_URL_KEY);
+  if(saved) renderQR(saved);
+}
+function openPin(){ pinValue=""; show('pin-screen'); renderDots(); document.getElementById('pin-error').style.display='none'; }
+
+function showVotedConfirm(){
+  document.getElementById('voter-list').style.display='none';
+  const c=document.getElementById('voted-confirm'); c.style.display='flex';
+  const song=songs.find(s=>s.id===userVotedId);
+  document.getElementById('voted-title').textContent=song?.title||'tu canción';
+  document.getElementById('voted-artist').textContent=song?.artist||'';
+  document.getElementById('dj-trigger').style.display='none';
+}
+
+// ── Bar helpers ────────────────────────────────────────────────────────────────
+function getBarMeta(pct){
+  if(pct>=85) return{color:"#ff0040",glow:"rgba(255,0,64,0.7)",pulse:"0.7s",label:"🔥 CASI AL TOP"};
+  if(pct>=60) return{color:"#ff6000",glow:"rgba(255,96,0,0.5)",pulse:"1.2s",label:"⚡ SUBIENDO"};
+  if(pct>=35) return{color:"#ffaa00",glow:"rgba(255,170,0,0.35)",pulse:"2.5s",label:null};
+  return           {color:"#00c8ff",glow:"rgba(0,200,255,0.2)",pulse:"2.5s",label:null};
+}
+function buildBar(pct,isLeader){
+  const{color,glow,pulse,label}=getBarMeta(pct);
+  const h=isLeader?8:5;
+  const anim=pct>=60?`urgencyPulse ${pulse} ease-in-out infinite`:'none';
+  const shadow=pct>30?`0 0 ${Math.round(pct/4)}px ${glow}`:'none';
+  const shimmer=isLeader?'<div class="bar-shimmer"></div>':'';
+  const lbl=label?`<div style="font-size:9px;font-family:monospace;letter-spacing:2px;color:${color};margin-top:3px;animation:urgencyPulse ${pulse} ease-in-out infinite;">${label}</div>`:'';
+  return `<div class="bar-track" style="height:${h}px;"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}${isLeader?'88':'55'},${color}${isLeader?'':'cc'});box-shadow:${shadow};animation:${anim};">${shimmer}</div></div>${lbl}`;
+}
+
+// ── Voter ──────────────────────────────────────────────────────────────────────
+function getSorted(){ return [...songs].map(s=>({...s,votes:votes[s.id]||0})).sort((a,b)=>b.votes-a.votes); }
+
+function renderVoter(){
+  const sorted=getSorted(), max=Math.max(sorted[0]?.votes||1,1);
+  document.getElementById('voter-list').innerHTML=sorted.map((s,i)=>{
+    const isTop=i===0, pct=Math.round((s.votes/max)*100);
+    const{color,pulse,label:ul}=getBarMeta(pct);
+    const sym=i===0?'①':i===1?'②':i===2?'③':i+1;
+    const rc=i===0?'#ff0080':i===1?'#bbb':i===2?'#cd7f32':'#333';
+    const urgLbl=ul&&!isTop?`<span style="font-size:9px;color:#ff6000;font-family:monospace;letter-spacing:1px;animation:urgencyPulse 0.9s ease-in-out infinite;">${ul}</span>`:'';
+    return `<button class="song-btn ${isTop?'leader':''}" onclick="doVote(${s.id})">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <div style="width:28px;text-align:center;font-weight:bold;font-size:${i<3?'1.1':'0.9'}rem;color:${rc};">${sym}</div>
+        <div style="flex:1;">
+          <div style="font-size:0.95rem;letter-spacing:1px;">${s.title}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:10px;color:#555;font-family:monospace;">${s.artist}</span>${urgLbl}
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:1.1rem;font-family:monospace;color:${isTop?'#ff0080':'#555'};">${s.votes}</div>
+          <div style="font-size:9px;color:#333;font-family:monospace;">${pct}%</div>
+        </div>
+      </div>
+      <div style="padding-left:40px;width:100%;">${buildBar(pct,isTop)}</div>
+    </button>`;
+  }).join('');
+}
+
+function doVote(songId){
+  if(hasVoted()){showVotedConfirm();return;}
+  votes[songId]=(votes[songId]||0)+1;
+  saveVotesLS(votes); markVoted(songId);
+  userVotedId=songId; showVotedConfirm();
+}
+
+// ── DJ ─────────────────────────────────────────────────────────────────────────
+function renderDJ(){
+  const sorted=getSorted(), max=Math.max(sorted[0]?.votes||1,1), top=sorted[0];
+  const hero=document.getElementById('dj-hero');
+  if(top&&top.votes>0){
+    hero.style.display='flex';
+    document.getElementById('hero-title').textContent=top.title;
+    document.getElementById('hero-artist').textContent=top.artist;
+    document.getElementById('hero-votes').textContent=top.votes;
+  } else hero.style.display='none';
+
+  document.getElementById('dj-list').innerHTML=sorted.map((s,i)=>{
+    const isTop=i===0, pct=(s.votes/max)*100;
+    const sym=i===0?'①':i===1?'②':i===2?'③':i+1;
+    const rc=i===0?'#ff0080':i===1?'#bbb':i===2?'#cd7f32':'#3a3a3a';
+    return `<div style="padding:9px 14px;background:${isTop?'rgba(255,0,128,0.07)':'rgba(255,255,255,0.025)'};border:1px solid ${isTop?'rgba(255,0,128,0.25)':'rgba(255,255,255,0.04)'};border-radius:8px;transition:all 0.6s ease;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:28px;text-align:center;font-weight:bold;font-size:${i<3?'1.1':'0.9'}rem;color:${rc};">${sym}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:clamp(0.75rem,1.4vw,0.95rem);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${isTop?'#fff':'#ccc'};">${s.title}</div>
+          <div style="font-size:9px;color:#444;font-family:monospace;">${s.artist}</div>
+          ${buildBar(pct,isTop)}
+        </div>
+        <div style="width:36px;text-align:right;font-family:monospace;font-size:${isTop?'1rem':'0.9rem'};color:${isTop?'#ff0080':'#666'};">${s.votes}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function resetVotes(){
+  if(!confirm('¿Reiniciar todos los votos para nueva ronda?')) return;
+  votes={}; saveVotesLS(votes); renderDJ();
+}
+function djLogout(){
+  if(!confirm('¿Cerrar sesión DJ en esta compu?')) return;
+  setDJ(false); clearInterval(pollInterval);
+  document.getElementById('qr-sidebar').classList.remove('visible');
+  show('voter-screen');
+  if(hasVoted()){userVotedId=getVotedId();showVotedConfirm();}
+  else{renderVoter(); pollInterval=setInterval(syncVoter,2500);}
+}
+
+// ── PIN ────────────────────────────────────────────────────────────────────────
+let pinValue="";
+function renderDots(){
+  document.getElementById('pin-dots').innerHTML=
+    Array.from({length:DJ_PIN.length},(_,i)=>{
+      const f=pinValue[i]!==undefined;
+      return `<div style="width:14px;height:14px;border-radius:50%;background:${f?'#ff0080':'transparent'};border:2px solid ${f?'#ff0080':'rgba(255,255,255,0.2)'};transition:all 0.15s;box-shadow:${f?'0 0 10px rgba(255,0,128,0.6)':'none'};"></div>`;
+    }).join('');
+}
+function pinKey(d){
+  if(pinValue.length>=DJ_PIN.length) return;
+  pinValue+=d; renderDots();
+  if(pinValue.length===DJ_PIN.length){
+    if(pinValue===DJ_PIN){ setDJ(true); clearInterval(pollInterval); showDJ(); }
+    else{
+      const dots=document.getElementById('pin-dots');
+      dots.style.animation='shake 0.5s ease';
+      document.getElementById('pin-error').style.display='block';
+      dots.querySelectorAll('div').forEach(d=>{d.style.background='#ff0040';d.style.borderColor='#ff0040';});
+      setTimeout(()=>{ pinValue=""; dots.style.animation='none'; document.getElementById('pin-error').style.display='none'; renderDots(); },700);
+    }
+  }
+}
+function pinDel(){ pinValue=pinValue.slice(0,-1); renderDots(); }
+
+// ── QR ─────────────────────────────────────────────────────────────────────────
+function openQrConfig(){
+  const saved=ls.get(QR_URL_KEY)||'';
+  document.getElementById('qr-url-input').value=saved;
+  document.getElementById('qr-config').classList.add('open');
+  setTimeout(()=>document.getElementById('qr-url-input').focus(),100);
+}
+function closeQrConfig(){ document.getElementById('qr-config').classList.remove('open'); }
+
+function applyQr(){
+  const url=document.getElementById('qr-url-input').value.trim();
+  if(!url) return;
+  ls.set(QR_URL_KEY,url);
+  renderQR(url);
+  closeQrConfig();
+}
+
+function renderQR(url){
+  const wrap=document.getElementById('qr-code');
+  wrap.innerHTML='';
+  try{
+    new QRCode(wrap,{
+      text:url,
+      width:140, height:140,
+      colorDark:"#000000",
+      colorLight:"#ffffff",
+      correctLevel:QRCode.CorrectLevel.M
+    });
+  }catch(e){ wrap.innerHTML='<div style="color:#333;font-family:monospace;font-size:10px;padding:10px;">Error generando QR</div>'; }
+  document.getElementById('qr-sidebar').classList.add('visible');
+  document.getElementById('qr-sidebar').style.display='flex';
+}
+
+// ── Editor ──────────────────────────────────────────────────────────────────────
+function openEditor(){ editorList=songs.map(s=>({...s})); renderEditorList(); document.getElementById('editor').classList.add('open'); }
+function closeEditor(){ document.getElementById('editor').classList.remove('open'); }
+
+function renderEditorList(){
+  document.getElementById('editor-count').textContent=editorList.length+' CANCIONES';
+  const el=document.getElementById('editor-list');
+  if(!editorList.length){ el.innerHTML='<div style="text-align:center;color:#333;font-family:monospace;font-size:12px;letter-spacing:3px;margin-top:40px;">SIN CANCIONES</div>'; return; }
+  el.innerHTML=editorList.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <button onclick="editorMove(${i},-1)" style="background:none;border:none;color:#444;font-size:10px;padding:1px 4px;">▲</button>
+        <button onclick="editorMove(${i},1)"  style="background:none;border:none;color:#444;font-size:10px;padding:1px 4px;">▼</button>
+      </div>
+      <div style="width:24px;text-align:center;color:#444;font-family:monospace;font-size:12px;">${i+1}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.95rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div>
+        <div style="font-size:10px;color:#555;font-family:monospace;">${s.artist}</div>
+      </div>
+      <button onclick="editorEdit(${s.id})" style="background:none;border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#555;padding:5px 10px;font-family:monospace;font-size:9px;letter-spacing:1px;">EDITAR</button>
+      <button onclick="editorRemove(${s.id})" style="background:none;border:1px solid rgba(255,40,40,0.2);border-radius:5px;color:#ff4040;padding:5px 10px;font-family:monospace;font-size:9px;letter-spacing:1px;">✕</button>
+    </div>`).join('');
+}
+
+function addSong(){
+  const t=document.getElementById('new-title').value.trim();
+  const a=document.getElementById('new-artist').value.trim();
+  if(!t) return;
+  editorList.push({id:Date.now(),title:t,artist:a});
+  document.getElementById('new-title').value='';
+  document.getElementById('new-artist').value='';
+  renderEditorList();
+}
+function editorRemove(id){ editorList=editorList.filter(s=>s.id!==id); renderEditorList(); }
+function editorMove(i,dir){
+  const j=i+dir; if(j<0||j>=editorList.length) return;
+  [editorList[i],editorList[j]]=[editorList[j],editorList[i]]; renderEditorList();
+}
+function editorEdit(id){
+  const s=editorList.find(x=>x.id===id); if(!s) return;
+  const nt=prompt('Título:',s.title); if(nt===null) return;
+  const na=prompt('Artista:',s.artist); if(na===null) return;
+  s.title=nt.trim()||s.title; s.artist=na.trim(); renderEditorList();
+}
+function saveEditor(){
+  if(!editorList.length) return;
+  songs=editorList.map(s=>({...s})); saveSongsLS(songs);
+  closeEditor(); renderDJ();
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
