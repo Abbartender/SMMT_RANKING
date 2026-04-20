@@ -10,9 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:#080810;color:#fff;font-family:'Bebas Neue',Impact,sans-serif;min-height:100vh;}
-input{font-family:monospace;color:#fff;}
-input::placeholder{color:#444;}
-button{cursor:pointer;}
+input{font-family:monospace;color:#fff;}input::placeholder{color:#444;}button{cursor:pointer;}
 @keyframes glow{0%,100%{box-shadow:0 0 50px rgba(255,0,128,0.18);}50%{box-shadow:0 0 70px rgba(255,0,128,0.35);}}
 @keyframes urgencyPulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes shimmer{0%{transform:translateX(-150%)}100%{transform:translateX(400%)}}
@@ -20,33 +18,24 @@ button{cursor:pointer;}
 @keyframes pop{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes qrPulse{0%,100%{opacity:0.85;transform:scale(1);}50%{opacity:1;transform:scale(1.02);}}
-.screen{display:none;min-height:100vh;}
-.screen.active{display:block;}
+@keyframes winnerPulse{0%,100%{box-shadow:0 0 40px rgba(255,0,128,0.4),0 0 80px rgba(255,0,128,0.2);}50%{box-shadow:0 0 80px rgba(255,0,128,0.8),0 0 120px rgba(255,0,128,0.4);}}
+@keyframes cdUrgency{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+.screen{display:none;min-height:100vh;}.screen.active{display:block;}
 .screen-center{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;}
 .screen-center.active{display:flex;}
-.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at 15% 60%, rgba(255,0,128,0.12) 0%, transparent 55%),
-             radial-gradient(ellipse at 85% 15%, rgba(0,200,255,0.09) 0%, transparent 55%);}
-#dj-trigger{position:fixed;bottom:14px;right:14px;z-index:9999;
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
-  color:rgba(255,255,255,0.12);font-size:14px;line-height:36px;}
-.song-btn{display:flex;flex-direction:column;padding:11px 14px;
-  border:1px solid rgba(255,255,255,0.06);border-radius:10px;
-  background:rgba(255,255,255,0.04);color:#fff;text-align:left;
-  transition:all 0.15s ease;width:100%;margin-bottom:7px;}
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 15% 60%, rgba(255,0,128,0.12) 0%, transparent 55%),radial-gradient(ellipse at 85% 15%, rgba(0,200,255,0.09) 0%, transparent 55%);}
+#dj-trigger{position:fixed;bottom:14px;right:14px;z-index:9999;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.12);font-size:14px;line-height:36px;}
+.song-btn{display:flex;flex-direction:column;padding:11px 14px;border:1px solid rgba(255,255,255,0.06);border-radius:10px;background:rgba(255,255,255,0.04);color:#fff;text-align:left;transition:all 0.15s ease;width:100%;margin-bottom:7px;}
 .song-btn.leader{background:rgba(255,0,128,0.1);border-color:rgba(255,0,128,0.35);}
 .song-btn:active{transform:scale(0.97);}
 .bar-track{border-radius:4px;background:rgba(255,255,255,0.06);overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;}
-.bar-shimmer{position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%);
-  animation:shimmer 1.8s linear infinite;}
+.bar-shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%);animation:shimmer 1.8s linear infinite;}
 #editor{position:fixed;inset:0;z-index:200;background:rgba(8,8,16,0.97);display:none;flex-direction:column;overflow:hidden;}
 #editor.open{display:flex;}
 #qr-config{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;}
 #qr-config.open{display:flex;}
-#qr-config-box{background:#0f0f1a;border:1px solid rgba(0,200,255,0.3);border-radius:14px;padding:28px 24px;width:90%;max-width:380px;animation:fadeIn 0.2s ease;}
+#qr-config-box{background:#0f0f1a;border:1px solid rgba(0,200,255,0.3);border-radius:14px;padding:28px 24px;width:90%;max-width:380px;}
 .inp{padding:10px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;font-family:monospace;outline:none;width:100%;}
 .pin-btn{padding:18px 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:1.4rem;font-family:'Bebas Neue',Impact,sans-serif;}
 .pin-btn:active{background:rgba(255,0,128,0.2);}
@@ -57,6 +46,16 @@ button{cursor:pointer;}
 #qr-scan-label{font-size:11px;letter-spacing:3px;color:#ff0080;font-family:monospace;text-align:center;}
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(255,0,128,0.9);color:#fff;padding:10px 20px;border-radius:8px;font-family:monospace;font-size:12px;letter-spacing:2px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;white-space:nowrap;}
 #toast.show{opacity:1;}
+#countdown-widget{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+#countdown-display{font-size:clamp(2.8rem,6vw,4.5rem);text-align:center;letter-spacing:8px;line-height:1;transition:color 0.5s;}
+#cd-track{height:7px;border-radius:4px;background:rgba(255,255,255,0.06);margin-top:12px;overflow:hidden;}
+#cd-fill{height:100%;border-radius:4px;transition:width 1s linear,background 0.5s;}
+#cd-label{font-size:10px;font-family:monospace;letter-spacing:3px;text-align:center;margin-top:8px;}
+#winner-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.94);display:none;align-items:center;justify-content:center;flex-direction:column;}
+#winner-overlay.show{display:flex;}
+#winner-box{text-align:center;padding:40px 32px;animation:winnerPulse 1.5s ease-in-out infinite;max-width:500px;width:90%;}
+#voter-cd-banner{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(8,8,16,0.96);border-bottom:1px solid rgba(255,0,128,0.3);padding:8px 16px;display:none;align-items:center;justify-content:center;gap:16px;}
+#voter-cd-banner.on{display:flex;}
 </style>
 </head>
 <body>
@@ -64,43 +63,41 @@ button{cursor:pointer;}
 
 <!-- VOTER -->
 <div id="voter-screen" class="screen active">
-  <div style="padding:22px 16px 12px;text-align:center;">
+  <div id="voter-cd-banner">
+    <div style="font-size:10px;letter-spacing:4px;color:#ff0080;font-family:monospace;">TIEMPO</div>
+    <div id="voter-cd-display" style="font-size:1.6rem;letter-spacing:5px;color:#fff;"></div>
+    <div style="font-size:10px;letter-spacing:3px;color:#555;font-family:monospace;">VOTÁ YA</div>
+  </div>
+  <div id="voter-header" style="padding:22px 16px 12px;text-align:center;">
     <div style="font-size:10px;letter-spacing:6px;color:#ff0080;font-family:monospace;">SUMMIT · VOTÁ AHORA</div>
-    <h2 style="font-size:clamp(1.5rem,5vw,2rem);margin:4px 0 2px;letter-spacing:3px;">¿QUÉ SUENA DESPUÉS?</h2>
+    <h2 style="font-size:clamp(1.5rem,5vw,2rem);margin:4px 0 2px;letter-spacing:3px;">QUE SUENA DESPUES?</h2>
     <div style="font-size:10px;color:#444;font-family:monospace;letter-spacing:2px;">UN VOTO · SIN REGISTRO</div>
   </div>
   <div id="voter-list" style="padding:8px 12px 80px;"></div>
   <div id="voted-confirm" style="display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;position:fixed;inset:0;background:#080810;z-index:10;">
-    <div style="font-size:4.5rem;margin-bottom:18px;animation:pop 0.4s ease;">🎶</div>
+    <div style="font-size:4.5rem;margin-bottom:18px;animation:pop 0.4s ease;">&#127926;</div>
     <div style="font-size:11px;letter-spacing:6px;color:#ff0080;font-family:monospace;margin-bottom:6px;">VOTASTE POR</div>
     <div id="voted-title" style="font-size:clamp(1.6rem,5vw,2.2rem);letter-spacing:2px;margin-bottom:4px;"></div>
     <div id="voted-artist" style="font-size:13px;color:#666;font-family:monospace;"></div>
-    <div style="margin-top:36px;padding:14px 24px;border:1px solid rgba(255,0,128,0.2);border-radius:10px;font-size:12px;color:#555;font-family:monospace;letter-spacing:2px;line-height:1.8;">SI LLEGA AL #1<br/>EL DJ LA PONE 🔥</div>
+    <div style="margin-top:36px;padding:14px 24px;border:1px solid rgba(255,0,128,0.2);border-radius:10px;font-size:12px;color:#555;font-family:monospace;letter-spacing:2px;line-height:1.8;">SI LLEGA AL #1<br/>EL DJ LA PONE &#128293;</div>
   </div>
-  <button id="dj-trigger" onclick="openPin()">🎛</button>
+  <button id="dj-trigger" onclick="openPin()">&#127899;</button>
 </div>
 
 <!-- PIN -->
 <div id="pin-screen" class="screen-center" style="user-select:none;">
   <div style="position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%, rgba(255,0,128,0.1) 0%, transparent 60%);"></div>
   <div style="position:relative;z-index:1;text-align:center;width:100%;max-width:320px;padding:0 24px;">
-    <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.7;">🎛️</div>
+    <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.7;">&#127899;</div>
     <div style="font-size:11px;letter-spacing:6px;color:#ff0080;font-family:monospace;margin-bottom:6px;">SUMMIT · ACCESO DJ / VJ</div>
-    <div style="font-size:1.8rem;letter-spacing:3px;margin-bottom:32px;">INGRESÁ TU PIN</div>
+    <div style="font-size:1.8rem;letter-spacing:3px;margin-bottom:32px;">INGRESA TU PIN</div>
     <div id="pin-dots" style="display:flex;justify-content:center;gap:14px;margin-bottom:36px;"></div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
-      <button class="pin-btn" onclick="pinKey('1')">1</button>
-      <button class="pin-btn" onclick="pinKey('2')">2</button>
-      <button class="pin-btn" onclick="pinKey('3')">3</button>
-      <button class="pin-btn" onclick="pinKey('4')">4</button>
-      <button class="pin-btn" onclick="pinKey('5')">5</button>
-      <button class="pin-btn" onclick="pinKey('6')">6</button>
-      <button class="pin-btn" onclick="pinKey('7')">7</button>
-      <button class="pin-btn" onclick="pinKey('8')">8</button>
-      <button class="pin-btn" onclick="pinKey('9')">9</button>
-      <div></div>
-      <button class="pin-btn" onclick="pinKey('0')">0</button>
-      <button onclick="pinDel()" style="padding:18px 0;background:transparent;border:none;color:#555;font-size:1.2rem;">⌫</button>
+      <button class="pin-btn" onclick="pinKey('1')">1</button><button class="pin-btn" onclick="pinKey('2')">2</button><button class="pin-btn" onclick="pinKey('3')">3</button>
+      <button class="pin-btn" onclick="pinKey('4')">4</button><button class="pin-btn" onclick="pinKey('5')">5</button><button class="pin-btn" onclick="pinKey('6')">6</button>
+      <button class="pin-btn" onclick="pinKey('7')">7</button><button class="pin-btn" onclick="pinKey('8')">8</button><button class="pin-btn" onclick="pinKey('9')">9</button>
+      <div></div><button class="pin-btn" onclick="pinKey('0')">0</button>
+      <button onclick="pinDel()" style="padding:18px 0;background:transparent;border:none;color:#555;font-size:1.2rem;">&#9003;</button>
     </div>
     <div id="pin-error" style="display:none;font-size:11px;color:#ff0040;font-family:monospace;letter-spacing:3px;">PIN INCORRECTO</div>
   </div>
@@ -111,15 +108,37 @@ button{cursor:pointer;}
   <div class="ambient"></div>
   <div style="position:relative;z-index:1;max-width:800px;margin:0 auto;padding:20px 24px;">
     <div style="text-align:center;margin-bottom:18px;position:relative;">
-      <div style="font-size:10px;letter-spacing:8px;color:#ff0080;font-family:monospace;margin-bottom:2px;">SUMMIT ▶ EN VIVO · TIEMPO REAL</div>
-      <h1 style="margin:0;font-size:clamp(2rem,5vw,3.2rem);letter-spacing:4px;background:linear-gradient(90deg,#fff 0%,#ff0080 55%,#00c8ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ELIGE LA PRÓXIMA</h1>
+      <div style="font-size:10px;letter-spacing:8px;color:#ff0080;font-family:monospace;margin-bottom:2px;">SUMMIT &#9654; EN VIVO · TIEMPO REAL</div>
+      <h1 style="margin:0;font-size:clamp(2rem,5vw,3.2rem);letter-spacing:4px;background:linear-gradient(90deg,#fff 0%,#ff0080 55%,#00c8ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ELIGE LA PROXIMA</h1>
       <div style="position:absolute;top:0;right:0;display:flex;gap:6px;">
         <button onclick="openQrConfig()" style="padding:5px 10px;background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.25);border-radius:5px;color:#00c8ff;font-family:monospace;font-size:9px;letter-spacing:2px;">QR</button>
         <button onclick="djLogout()" style="padding:5px 10px;background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#333;font-family:monospace;font-size:9px;letter-spacing:2px;">SALIR</button>
       </div>
     </div>
+
+    <!-- COUNTDOWN -->
+    <div id="countdown-widget">
+      <div id="cd-start-panel" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div style="font-size:10px;letter-spacing:4px;color:#555;font-family:monospace;flex:0 0 auto;">&#9201; RONDA</div>
+        <div style="display:flex;gap:6px;flex:1;flex-wrap:wrap;">
+          <button onclick="startCD(1)" style="flex:1;padding:8px 0;background:rgba(255,0,128,0.1);border:1px solid rgba(255,0,128,0.25);border-radius:6px;color:#ff0080;font-family:monospace;font-size:11px;letter-spacing:1px;">1 MIN</button>
+          <button onclick="startCD(2)" style="flex:1;padding:8px 0;background:rgba(255,0,128,0.1);border:1px solid rgba(255,0,128,0.25);border-radius:6px;color:#ff0080;font-family:monospace;font-size:11px;letter-spacing:1px;">2 MIN</button>
+          <button onclick="startCD(3)" style="flex:1;padding:8px 0;background:rgba(255,0,128,0.1);border:1px solid rgba(255,0,128,0.25);border-radius:6px;color:#ff0080;font-family:monospace;font-size:11px;letter-spacing:1px;">3 MIN</button>
+          <button onclick="startCD(5)" style="flex:1;padding:8px 0;background:rgba(255,0,128,0.1);border:1px solid rgba(255,0,128,0.25);border-radius:6px;color:#ff0080;font-family:monospace;font-size:11px;letter-spacing:1px;">5 MIN</button>
+        </div>
+      </div>
+      <div id="cd-running-panel" style="display:none;">
+        <div id="countdown-display">00:00</div>
+        <div id="cd-track"><div id="cd-fill" style="width:100%;background:#00c8ff;"></div></div>
+        <div id="cd-label" style="color:#555;">RONDA EN CURSO</div>
+        <div style="display:flex;justify-content:center;margin-top:10px;">
+          <button onclick="stopCD()" style="padding:7px 20px;background:rgba(255,40,40,0.15);border:1px solid rgba(255,40,40,0.3);border-radius:6px;color:#ff4040;font-family:monospace;font-size:10px;letter-spacing:2px;">&#9632; DETENER</button>
+        </div>
+      </div>
+    </div>
+
     <div id="dj-hero" style="display:none;background:linear-gradient(135deg,rgba(255,0,128,0.18),rgba(0,200,255,0.08));border:1px solid rgba(255,0,128,0.45);border-radius:14px;padding:14px 20px;margin-bottom:16px;align-items:center;gap:16px;animation:glow 2.5s ease-in-out infinite;">
-      <span style="font-size:2rem;">🏆</span>
+      <span style="font-size:2rem;">&#127942;</span>
       <div style="flex:1;">
         <div style="font-size:10px;color:#ff0080;letter-spacing:5px;font-family:monospace;">LIDERA EL RANKING</div>
         <div id="hero-title" style="font-size:clamp(1.1rem,2.2vw,1.6rem);letter-spacing:2px;"></div>
@@ -130,16 +149,30 @@ button{cursor:pointer;}
         <div style="font-size:10px;color:#555;font-family:monospace;letter-spacing:2px;">VOTOS</div>
       </div>
     </div>
+
     <div id="dj-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+
     <div style="display:flex;justify-content:center;gap:10px;margin-top:22px;flex-wrap:wrap;">
-      <button onclick="openEditor()" style="padding:8px 20px;background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.3);border-radius:6px;color:#00c8ff;font-family:monospace;font-size:11px;letter-spacing:3px;">✎ EDITAR PLAYLIST</button>
-      <button onclick="resetVotes()" style="padding:8px 20px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#444;font-family:monospace;font-size:11px;letter-spacing:3px;">⟳ NUEVA RONDA</button>
+      <button onclick="openEditor()" style="padding:8px 20px;background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.3);border-radius:6px;color:#00c8ff;font-family:monospace;font-size:11px;letter-spacing:3px;">&#9998; EDITAR PLAYLIST</button>
+      <button onclick="resetVotes()" style="padding:8px 20px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#444;font-family:monospace;font-size:11px;letter-spacing:3px;">&#8635; NUEVA RONDA</button>
     </div>
   </div>
   <div id="qr-sidebar">
-    <div id="qr-scan-label">📱 ESCANEÁ Y VOTÁ</div>
+    <div id="qr-scan-label">&#128241; ESCANEÁ Y VOTÁ</div>
     <div id="qr-wrap"><div id="qr-code"></div></div>
-    <div id="qr-label">APUNTÁ LA CÁMARA</div>
+    <div id="qr-label">APUNTA LA CAMARA</div>
+  </div>
+</div>
+
+<!-- WINNER -->
+<div id="winner-overlay">
+  <div id="winner-box">
+    <div style="font-size:10px;letter-spacing:8px;color:#ff0080;font-family:monospace;margin-bottom:16px;">&#127942; GANADORA DE LA RONDA</div>
+    <div id="winner-title" style="font-size:clamp(2rem,6vw,3.5rem);letter-spacing:3px;margin-bottom:8px;"></div>
+    <div id="winner-artist" style="font-size:16px;color:#888;font-family:monospace;margin-bottom:8px;"></div>
+    <div id="winner-votes" style="font-size:clamp(1.5rem,4vw,2.5rem);color:#ff0080;margin-bottom:32px;"></div>
+    <div style="font-size:1.4rem;letter-spacing:4px;color:#fff;margin-bottom:32px;">EL DJ LA PONE AHORA &#128293;</div>
+    <button onclick="closeWinner()" style="padding:12px 32px;background:rgba(255,0,128,0.2);border:1px solid rgba(255,0,128,0.5);border-radius:8px;color:#ff0080;font-family:monospace;font-size:12px;letter-spacing:3px;">&#10003; ENTENDIDO</button>
   </div>
 </div>
 
@@ -150,17 +183,17 @@ button{cursor:pointer;}
       <div style="font-size:10px;color:#ff0080;letter-spacing:5px;font-family:monospace;">SUMMIT · PANEL DJ</div>
       <div style="font-size:1.6rem;letter-spacing:3px;">EDITAR PLAYLIST</div>
     </div>
-    <button onclick="closeEditor()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#555;padding:6px 14px;font-family:monospace;font-size:10px;letter-spacing:2px;">✕ CERRAR</button>
+    <button onclick="closeEditor()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#555;padding:6px 14px;font-family:monospace;font-size:10px;letter-spacing:2px;">&#10005; CERRAR</button>
   </div>
   <div style="padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
-    <input id="new-title" class="inp" placeholder="Título" style="flex:2 1 160px;" onkeydown="if(event.key==='Enter') addSong()"/>
+    <input id="new-title" class="inp" placeholder="Titulo" style="flex:2 1 160px;" onkeydown="if(event.key==='Enter') addSong()"/>
     <input id="new-artist" class="inp" placeholder="Artista" style="flex:1 1 120px;" onkeydown="if(event.key==='Enter') addSong()"/>
     <button onclick="addSong()" style="padding:10px 18px;background:rgba(255,0,128,0.2);border:1px solid rgba(255,0,128,0.4);border-radius:8px;color:#ff0080;font-family:monospace;font-size:11px;letter-spacing:2px;">+ AGREGAR</button>
   </div>
   <div id="editor-list" style="flex:1;overflow-y:auto;padding:12px 24px;"></div>
   <div style="padding:16px 24px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
     <div id="editor-count" style="font-size:11px;color:#444;font-family:monospace;letter-spacing:2px;"></div>
-    <button onclick="saveEditor()" id="save-btn" style="padding:10px 30px;background:rgba(255,0,128,0.25);border:1px solid rgba(255,0,128,0.5);border-radius:8px;color:#ff0080;font-family:monospace;font-size:12px;letter-spacing:3px;">✓ GUARDAR Y APLICAR</button>
+    <button onclick="saveEditor()" id="save-btn" style="padding:10px 30px;background:rgba(255,0,128,0.25);border:1px solid rgba(255,0,128,0.5);border-radius:8px;color:#ff0080;font-family:monospace;font-size:12px;letter-spacing:3px;">&#10003; GUARDAR Y APLICAR</button>
   </div>
 </div>
 
@@ -168,11 +201,11 @@ button{cursor:pointer;}
 <div id="qr-config">
   <div id="qr-config-box">
     <div style="font-size:10px;color:#00c8ff;letter-spacing:5px;font-family:monospace;margin-bottom:4px;">CONFIGURAR QR</div>
-    <div style="font-size:1.4rem;letter-spacing:2px;margin-bottom:16px;">URL DE VOTACIÓN</div>
+    <div style="font-size:1.4rem;letter-spacing:2px;margin-bottom:16px;">URL DE VOTACION</div>
     <input id="qr-url-input" class="inp" placeholder="https://smmt-ranking.vercel.app" style="margin-bottom:14px;" onkeydown="if(event.key==='Enter') applyQr()"/>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <button onclick="closeQrConfig()" style="padding:9px 18px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:#555;font-family:monospace;font-size:10px;letter-spacing:2px;">CANCELAR</button>
-      <button onclick="applyQr()" style="padding:9px 20px;background:rgba(0,200,255,0.2);border:1px solid rgba(0,200,255,0.4);border-radius:7px;color:#00c8ff;font-family:monospace;font-size:11px;letter-spacing:2px;">✓ GENERAR QR</button>
+      <button onclick="applyQr()" style="padding:9px 20px;background:rgba(0,200,255,0.2);border:1px solid rgba(0,200,255,0.4);border-radius:7px;color:#00c8ff;font-family:monospace;font-size:11px;letter-spacing:2px;">&#10003; GENERAR QR</button>
     </div>
   </div>
 </div>
@@ -180,136 +213,138 @@ button{cursor:pointer;}
 <div id="toast"></div>
 
 <script>
-// ── Supabase ───────────────────────────────────────────────────────────────────
-const SUPABASE_URL = "https://tubsruokpiufyxeibtgo.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YnNydW9rcGl1Znl4ZWlidGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzI0MzksImV4cCI6MjA5MjEwODQzOX0.Dhjz35wOVwX3xpMzqSCagt9hxFMd6OQwN92zUxVUVcI";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL="https://tubsruokpiufyxeibtgo.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YnNydW9rcGl1Znl4ZWlidGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MzI0MzksImV4cCI6MjA5MjEwODQzOX0.Dhjz35wOVwX3xpMzqSCagt9hxFMd6OQwN92zUxVUVcI";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const DJ_PIN="2025",QR_URL_KEY="smmt-qr-url";
+let songs=[],votes={},editorList=[],realtimeChannel=null;
+let cdInterval=null,cdTotal=0,cdLeft=0;
 
-// ── Config ─────────────────────────────────────────────────────────────────────
-const DJ_PIN     = "2025";
-const QR_URL_KEY = "smmt-qr-url";
-
-// ── State ──────────────────────────────────────────────────────────────────────
-let songs = [], votes = {}, editorList = [], realtimeChannel = null;
-
-// ── Fingerprint ────────────────────────────────────────────────────────────────
 function getFingerprint(){
-  let fp=sessionStorage.getItem("smmt-fp"); if(fp) return fp;
-  const raw=[navigator.userAgent,navigator.language,screen.width+"x"+screen.height,
-    screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0].join("|");
-  let h=0; for(let i=0;i<raw.length;i++) h=(Math.imul(31,h)+raw.charCodeAt(i))|0;
+  let fp=sessionStorage.getItem("smmt-fp");if(fp)return fp;
+  const raw=[navigator.userAgent,navigator.language,screen.width+"x"+screen.height,screen.colorDepth,new Date().getTimezoneOffset(),navigator.hardwareConcurrency||0].join("|");
+  let h=0;for(let i=0;i<raw.length;i++)h=(Math.imul(31,h)+raw.charCodeAt(i))|0;
   fp="fp_"+Math.abs(h).toString(36)+"_"+Date.now().toString(36);
-  sessionStorage.setItem("smmt-fp",fp); return fp;
+  sessionStorage.setItem("smmt-fp",fp);return fp;
 }
-const FP = getFingerprint();
-
-// ── localStorage ──────────────────────────────────────────────────────────────
-const ls={
-  get(k){try{return localStorage.getItem(k)}catch{return null}},
-  set(k,v){try{localStorage.setItem(k,v)}catch{}},
-  del(k){try{localStorage.removeItem(k)}catch{}}
-};
+const FP=getFingerprint();
+const ls={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 function hasVoted(){return ls.get("smmt-voted-"+FP)!==null;}
 function markVoted(id){ls.set("smmt-voted-"+FP,String(id));}
 function getVotedId(){const v=ls.get("smmt-voted-"+FP);return v?Number(v):null;}
 function isDJ(){return ls.get("smmt-dj")==="true";}
 function setDJ(v){v?ls.set("smmt-dj","true"):ls.del("smmt-dj");}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-// ── Toast ──────────────────────────────────────────────────────────────────────
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
+async function loadSongs(){const{data,error}=await sb.from('smmt_songs').select('*').order('position');if(error||!data||!data.length)return[];return data;}
+async function saveSongsDB(list){await sb.from('smmt_songs').delete().gte('position',0);const ti=list.map((s,i)=>({smmt_songs:s.smmt_songs||(i+1),title:s.title,artist:s.artist,position:i+1}));await sb.from('smmt_songs').insert(ti);}
+async function loadVotes(){const{data,error}=await sb.from('smmt_votes').select('*');if(error||!data)return{};const m={};data.forEach(r=>{m[r.song_id]=r.count;});return m;}
+async function addVote(sid){const{data}=await sb.from('smmt_votes').select('count').eq('song_id',sid).single();if(data)await sb.from('smmt_votes').update({count:data.count+1}).eq('song_id',sid);else await sb.from('smmt_votes').insert({song_id:sid,count:1});}
+async function resetVotesDB(){await sb.from('smmt_votes').delete().gte('count',0);votes={};}
 
-// ── Supabase: songs ────────────────────────────────────────────────────────────
-// PK column is "smmt_songs", data columns: title, artist, position
-async function loadSongs(){
-  const{data,error}=await sb.from('smmt_songs').select('*').order('position');
-  if(error||!data||!data.length) return [];
-  return data;
-}
-async function saveSongsDB(list){
-  await sb.from('smmt_songs').delete().gte('position',0);
-  const toInsert=list.map((s,i)=>({
-    smmt_songs: s.smmt_songs || s.id || (i+1),
-    title:s.title,
-    artist:s.artist,
-    position:i+1
-  }));
-  await sb.from('smmt_songs').insert(toInsert);
-}
-
-// ── Supabase: votes ────────────────────────────────────────────────────────────
-// columns: song_id, count
-async function loadVotes(){
-  const{data,error}=await sb.from('smmt_votes').select('*');
-  if(error||!data) return {};
-  const map={};
-  data.forEach(r=>{ map[r.song_id]=r.count; });
-  return map;
-}
-async function addVote(songId){
-  const{data}=await sb.from('smmt_votes').select('count').eq('song_id',songId).single();
-  if(data){
-    await sb.from('smmt_votes').update({count:data.count+1}).eq('song_id',songId);
-  } else {
-    await sb.from('smmt_votes').insert({song_id:songId,count:1});
-  }
-}
-async function resetVotesDB(){
-  await sb.from('smmt_votes').delete().gte('count',0);
-  votes={};
-}
-
-// ── Realtime ───────────────────────────────────────────────────────────────────
 function subscribeRealtime(){
-  if(realtimeChannel) sb.removeChannel(realtimeChannel);
+  if(realtimeChannel)sb.removeChannel(realtimeChannel);
   realtimeChannel=sb.channel('smmt-realtime')
-    .on('postgres_changes',{event:'*',schema:'public',table:'smmt_votes'},async()=>{
-      votes=await loadVotes();
-      if(isDJ()) renderDJ(); else if(!hasVoted()) renderVoter();
-    })
-    .on('postgres_changes',{event:'*',schema:'public',table:'smmt_songs'},async()=>{
-      songs=await loadSongs();
-      if(isDJ()) renderDJ(); else if(!hasVoted()) renderVoter();
-    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'smmt_votes'},async()=>{votes=await loadVotes();if(isDJ())renderDJ();else if(!hasVoted())renderVoter();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'smmt_songs'},async()=>{songs=await loadSongs();if(isDJ())renderDJ();else if(!hasVoted())renderVoter();})
     .subscribe();
 }
 
-// ── Init ───────────────────────────────────────────────────────────────────────
+// Countdown broadcast
+const cdChannel=sb.channel('smmt-cd');
+cdChannel.on('broadcast',{event:'tick'},(m)=>{if(!isDJ()){cdLeft=m.payload.l;cdTotal=m.payload.t;updateVoterCD();}})
+  .on('broadcast',{event:'end'},()=>{if(!isDJ())hideVoterCD();})
+  .on('broadcast',{event:'stop'},()=>{if(!isDJ())hideVoterCD();})
+  .subscribe();
+
 async function init(){
-  document.getElementById('voter-list').innerHTML=
-    '<div style="text-align:center;padding:60px 0;font-family:monospace;font-size:12px;color:#333;letter-spacing:3px;">CARGANDO...</div>';
+  document.getElementById('voter-list').innerHTML='<div style="text-align:center;padding:60px 0;font-family:monospace;font-size:12px;color:#333;letter-spacing:3px;">CARGANDO...</div>';
   [songs,votes]=await Promise.all([loadSongs(),loadVotes()]);
   subscribeRealtime();
   if(isDJ()){showDJ();return;}
-  if(hasVoted()) showVotedConfirm(getVotedId());
+  if(hasVoted())showVotedConfirm(getVotedId());
   else renderVoter();
 }
 
-// ── Screens ────────────────────────────────────────────────────────────────────
-function show(id){
-  document.querySelectorAll('.screen,.screen-center').forEach(el=>el.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+function show(id){document.querySelectorAll('.screen,.screen-center').forEach(el=>el.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function showDJ(){show('dj-screen');renderDJ();const s=ls.get(QR_URL_KEY);if(s)renderQR(s);}
 function openPin(){pinValue="";show('pin-screen');renderDots();document.getElementById('pin-error').style.display='none';}
-function showVotedConfirm(songId){
+function showVotedConfirm(sid){
   document.getElementById('voter-list').style.display='none';
   const c=document.getElementById('voted-confirm');c.style.display='flex';
-  const song=songs.find(s=>s.smmt_songs===songId);
-  document.getElementById('voted-title').textContent=song?.title||'tu canción';
+  const song=songs.find(s=>s.smmt_songs===sid);
+  document.getElementById('voted-title').textContent=song?.title||'tu cancion';
   document.getElementById('voted-artist').textContent=song?.artist||'';
   document.getElementById('dj-trigger').style.display='none';
 }
 
-// ── Bar ────────────────────────────────────────────────────────────────────────
+// Countdown DJ
+function startCD(min){
+  if(cdInterval)clearInterval(cdInterval);
+  cdTotal=min*60;cdLeft=cdTotal;
+  document.getElementById('cd-start-panel').style.display='none';
+  document.getElementById('cd-running-panel').style.display='block';
+  tickCD();
+  cdInterval=setInterval(tickCD,1000);
+}
+function tickCD(){
+  cdLeft--;
+  if(cdLeft<=0){clearInterval(cdInterval);cdLeft=0;updateCDui();showWinner();cdChannel.send({type:'broadcast',event:'end',payload:{}});return;}
+  updateCDui();
+  cdChannel.send({type:'broadcast',event:'tick',payload:{l:cdLeft,t:cdTotal}});
+}
+function updateCDui(){
+  const m=Math.floor(cdLeft/60),s=cdLeft%60;
+  const disp=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const pct=(cdLeft/cdTotal)*100;
+  let color='#00c8ff';
+  if(cdLeft<=30)color='#ff0040';
+  else if(cdLeft<=60)color='#ff6000';
+  else if(pct<=50)color='#ffaa00';
+  const el=document.getElementById('countdown-display');
+  el.textContent=disp;el.style.color=color;
+  el.style.animation=cdLeft<=10?'cdUrgency 0.5s ease-in-out infinite':'none';
+  document.getElementById('cd-fill').style.width=pct+'%';
+  document.getElementById('cd-fill').style.background=color;
+  const lbl=cdLeft<=30?'ULTIMOS SEGUNDOS':cdLeft<=60?'APURATE A VOTAR':'RONDA EN CURSO';
+  const lblEl=document.getElementById('cd-label');
+  lblEl.textContent=lbl;lblEl.style.color=cdLeft<=30?'#ff0040':cdLeft<=60?'#ff6000':'#555';
+}
+function stopCD(){
+  if(!confirm('Detener el countdown?'))return;
+  clearInterval(cdInterval);cdInterval=null;
+  document.getElementById('cd-running-panel').style.display='none';
+  document.getElementById('cd-start-panel').style.display='flex';
+  cdChannel.send({type:'broadcast',event:'stop',payload:{}});
+}
+function showWinner(){
+  const sorted=getSorted();const top=sorted[0];if(!top)return;
+  document.getElementById('winner-title').textContent=top.title;
+  document.getElementById('winner-artist').textContent=top.artist;
+  document.getElementById('winner-votes').textContent=top.voteCount+' VOTOS';
+  document.getElementById('winner-overlay').classList.add('show');
+}
+function closeWinner(){
+  document.getElementById('winner-overlay').classList.remove('show');
+  document.getElementById('cd-running-panel').style.display='none';
+  document.getElementById('cd-start-panel').style.display='flex';
+}
+
+// Voter countdown
+function updateVoterCD(){
+  const m=Math.floor(cdLeft/60),s=cdLeft%60;
+  const el=document.getElementById('voter-cd-display');
+  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.style.color=cdLeft<=30?'#ff0040':cdLeft<=60?'#ff6000':'#fff';
+  document.getElementById('voter-cd-banner').classList.add('on');
+}
+function hideVoterCD(){document.getElementById('voter-cd-banner').classList.remove('on');}
+
 function getBarMeta(pct){
-  if(pct>=85) return{color:"#ff0040",glow:"rgba(255,0,64,0.7)",pulse:"0.7s",label:"🔥 CASI AL TOP"};
-  if(pct>=60) return{color:"#ff6000",glow:"rgba(255,96,0,0.5)",pulse:"1.2s",label:"⚡ SUBIENDO"};
-  if(pct>=35) return{color:"#ffaa00",glow:"rgba(255,170,0,0.35)",pulse:"2.5s",label:null};
-  return           {color:"#00c8ff",glow:"rgba(0,200,255,0.2)",pulse:"2.5s",label:null};
+  if(pct>=85)return{color:"#ff0040",glow:"rgba(255,0,64,0.7)",pulse:"0.7s",label:"CASI AL TOP"};
+  if(pct>=60)return{color:"#ff6000",glow:"rgba(255,96,0,0.5)",pulse:"1.2s",label:"SUBIENDO"};
+  if(pct>=35)return{color:"#ffaa00",glow:"rgba(255,170,0,0.35)",pulse:"2.5s",label:null};
+  return{color:"#00c8ff",glow:"rgba(0,200,255,0.2)",pulse:"2.5s",label:null};
 }
 function buildBar(pct,isLeader){
   const{color,glow,pulse,label}=getBarMeta(pct);
@@ -321,184 +356,88 @@ function buildBar(pct,isLeader){
   return `<div class="bar-track" style="height:${h}px;"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color}${isLeader?'88':'55'},${color}${isLeader?'':'cc'});box-shadow:${shadow};animation:${anim};">${shim}</div></div>${lbl}`;
 }
 
-// ── Voter ──────────────────────────────────────────────────────────────────────
-function getSorted(){
-  return [...songs].map(s=>({...s,voteCount:votes[s.smmt_songs]||0})).sort((a,b)=>b.voteCount-a.voteCount);
-}
+function getSorted(){return [...songs].map(s=>({...s,voteCount:votes[s.smmt_songs]||0})).sort((a,b)=>b.voteCount-a.voteCount);}
+
 function renderVoter(){
   const sorted=getSorted(),max=Math.max(sorted[0]?.voteCount||1,1);
   document.getElementById('voter-list').style.display='block';
   document.getElementById('voter-list').innerHTML=sorted.map((s,i)=>{
     const isTop=i===0,pct=Math.round((s.voteCount/max)*100);
     const{color,pulse,label:ul}=getBarMeta(pct);
-    const sym=i===0?'①':i===1?'②':i===2?'③':i+1;
+    const sym=i===0?'&#9312;':i===1?'&#9313;':i===2?'&#9314;':i+1;
     const rc=i===0?'#ff0080':i===1?'#bbb':i===2?'#cd7f32':'#333';
     const urgLbl=ul&&!isTop?`<span style="font-size:9px;color:#ff6000;font-family:monospace;letter-spacing:1px;animation:urgencyPulse 0.9s ease-in-out infinite;">${ul}</span>`:'';
     return `<button class="song-btn ${isTop?'leader':''}" onclick="doVote(${s.smmt_songs})">
       <div style="display:flex;align-items:center;gap:12px;width:100%;">
         <div style="width:28px;text-align:center;font-weight:bold;font-size:${i<3?'1.1':'0.9'}rem;color:${rc};">${sym}</div>
-        <div style="flex:1;">
-          <div style="font-size:0.95rem;letter-spacing:1px;">${s.title}</div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:10px;color:#555;font-family:monospace;">${s.artist}</span>${urgLbl}
-          </div>
+        <div style="flex:1;"><div style="font-size:0.95rem;letter-spacing:1px;">${s.title}</div>
+          <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:10px;color:#555;font-family:monospace;">${s.artist}</span>${urgLbl}</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:1.1rem;font-family:monospace;color:${isTop?'#ff0080':'#555'};">${s.voteCount}</div>
-          <div style="font-size:9px;color:#333;font-family:monospace;">${pct}%</div>
-        </div>
+        <div style="text-align:right;"><div style="font-size:1.1rem;font-family:monospace;color:${isTop?'#ff0080':'#555'};">${s.voteCount}</div><div style="font-size:9px;color:#333;font-family:monospace;">${pct}%</div></div>
       </div>
       <div style="padding-left:40px;width:100%;">${buildBar(pct,isTop)}</div>
     </button>`;
   }).join('');
 }
-async function doVote(songId){
+
+async function doVote(sid){
   if(hasVoted()){showVotedConfirm(getVotedId());return;}
-  markVoted(songId);
-  await addVote(songId);
-  votes=await loadVotes();
-  showVotedConfirm(songId);
+  markVoted(sid);await addVote(sid);votes=await loadVotes();showVotedConfirm(sid);
 }
 
-// ── DJ ─────────────────────────────────────────────────────────────────────────
 function renderDJ(){
   const sorted=getSorted(),max=Math.max(sorted[0]?.voteCount||1,1),top=sorted[0];
   const hero=document.getElementById('dj-hero');
-  if(top&&top.voteCount>0){
-    hero.style.display='flex';
-    document.getElementById('hero-title').textContent=top.title;
-    document.getElementById('hero-artist').textContent=top.artist;
-    document.getElementById('hero-votes').textContent=top.voteCount;
-  } else hero.style.display='none';
+  if(top&&top.voteCount>0){hero.style.display='flex';document.getElementById('hero-title').textContent=top.title;document.getElementById('hero-artist').textContent=top.artist;document.getElementById('hero-votes').textContent=top.voteCount;}
+  else hero.style.display='none';
   document.getElementById('dj-list').innerHTML=sorted.map((s,i)=>{
     const isTop=i===0,pct=(s.voteCount/max)*100;
-    const sym=i===0?'①':i===1?'②':i===2?'③':i+1;
+    const sym=i===0?'&#9312;':i===1?'&#9313;':i===2?'&#9314;':i+1;
     const rc=i===0?'#ff0080':i===1?'#bbb':i===2?'#cd7f32':'#3a3a3a';
     return `<div style="padding:9px 14px;background:${isTop?'rgba(255,0,128,0.07)':'rgba(255,255,255,0.025)'};border:1px solid ${isTop?'rgba(255,0,128,0.25)':'rgba(255,255,255,0.04)'};border-radius:8px;transition:all 0.6s ease;">
       <div style="display:flex;align-items:center;gap:12px;">
         <div style="width:28px;text-align:center;font-weight:bold;font-size:${i<3?'1.1':'0.9'}rem;color:${rc};">${sym}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:clamp(0.75rem,1.4vw,0.95rem);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${isTop?'#fff':'#ccc'};">${s.title}</div>
-          <div style="font-size:9px;color:#444;font-family:monospace;">${s.artist}</div>
-          ${buildBar(pct,isTop)}
+        <div style="flex:1;min-width:0;"><div style="font-size:clamp(0.75rem,1.4vw,0.95rem);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:${isTop?'#fff':'#ccc'};">${s.title}</div>
+          <div style="font-size:9px;color:#444;font-family:monospace;">${s.artist}</div>${buildBar(pct,isTop)}
         </div>
         <div style="width:36px;text-align:right;font-family:monospace;font-size:${isTop?'1rem':'0.9rem'};color:${isTop?'#ff0080':'#666'};">${s.voteCount}</div>
       </div>
     </div>`;
   }).join('');
 }
-async function resetVotes(){
-  if(!confirm('¿Reiniciar todos los votos para nueva ronda?')) return;
-  await resetVotesDB();
-  renderDJ();
-  toast('VOTOS REINICIADOS');
-}
-function djLogout(){
-  if(!confirm('¿Cerrar sesión DJ en esta compu?')) return;
-  setDJ(false);
-  document.getElementById('qr-sidebar').classList.remove('visible');
-  document.getElementById('qr-sidebar').style.display='none';
-  show('voter-screen');
-  if(hasVoted()) showVotedConfirm(getVotedId());
-  else renderVoter();
-}
 
-// ── PIN ────────────────────────────────────────────────────────────────────────
+async function resetVotes(){if(!confirm('Reiniciar todos los votos?'))return;await resetVotesDB();renderDJ();toast('VOTOS REINICIADOS');}
+function djLogout(){if(!confirm('Cerrar sesion DJ?'))return;if(cdInterval)clearInterval(cdInterval);setDJ(false);document.getElementById('qr-sidebar').classList.remove('visible');document.getElementById('qr-sidebar').style.display='none';show('voter-screen');if(hasVoted())showVotedConfirm(getVotedId());else renderVoter();}
+
 let pinValue="";
-function renderDots(){
-  document.getElementById('pin-dots').innerHTML=
-    Array.from({length:DJ_PIN.length},(_,i)=>{
-      const f=pinValue[i]!==undefined;
-      return `<div style="width:14px;height:14px;border-radius:50%;background:${f?'#ff0080':'transparent'};border:2px solid ${f?'#ff0080':'rgba(255,255,255,0.2)'};transition:all 0.15s;box-shadow:${f?'0 0 10px rgba(255,0,128,0.6)':'none'};"></div>`;
-    }).join('');
-}
-function pinKey(d){
-  if(pinValue.length>=DJ_PIN.length) return;
-  pinValue+=d; renderDots();
-  if(pinValue.length===DJ_PIN.length){
-    if(pinValue===DJ_PIN){setDJ(true);showDJ();}
-    else{
-      const dots=document.getElementById('pin-dots');
-      dots.style.animation='shake 0.5s ease';
-      document.getElementById('pin-error').style.display='block';
-      dots.querySelectorAll('div').forEach(d=>{d.style.background='#ff0040';d.style.borderColor='#ff0040';});
-      setTimeout(()=>{pinValue="";dots.style.animation='none';document.getElementById('pin-error').style.display='none';renderDots();},700);
-    }
-  }
-}
+function renderDots(){document.getElementById('pin-dots').innerHTML=Array.from({length:DJ_PIN.length},(_,i)=>{const f=pinValue[i]!==undefined;return`<div style="width:14px;height:14px;border-radius:50%;background:${f?'#ff0080':'transparent'};border:2px solid ${f?'#ff0080':'rgba(255,255,255,0.2)'};transition:all 0.15s;box-shadow:${f?'0 0 10px rgba(255,0,128,0.6)':'none'};"></div>`;}).join('');}
+function pinKey(d){if(pinValue.length>=DJ_PIN.length)return;pinValue+=d;renderDots();if(pinValue.length===DJ_PIN.length){if(pinValue===DJ_PIN){setDJ(true);showDJ();}else{const dots=document.getElementById('pin-dots');dots.style.animation='shake 0.5s ease';document.getElementById('pin-error').style.display='block';dots.querySelectorAll('div').forEach(d=>{d.style.background='#ff0040';d.style.borderColor='#ff0040';});setTimeout(()=>{pinValue="";dots.style.animation='none';document.getElementById('pin-error').style.display='none';renderDots();},700);}}}
 function pinDel(){pinValue=pinValue.slice(0,-1);renderDots();}
 
-// ── QR ─────────────────────────────────────────────────────────────────────────
-function openQrConfig(){
-  document.getElementById('qr-url-input').value=ls.get(QR_URL_KEY)||'';
-  document.getElementById('qr-config').classList.add('open');
-  setTimeout(()=>document.getElementById('qr-url-input').focus(),100);
-}
+function openQrConfig(){document.getElementById('qr-url-input').value=ls.get(QR_URL_KEY)||'';document.getElementById('qr-config').classList.add('open');setTimeout(()=>document.getElementById('qr-url-input').focus(),100);}
 function closeQrConfig(){document.getElementById('qr-config').classList.remove('open');}
-function applyQr(){
-  const url=document.getElementById('qr-url-input').value.trim();
-  if(!url) return;
-  ls.set(QR_URL_KEY,url);renderQR(url);closeQrConfig();
-}
-function renderQR(url){
-  const wrap=document.getElementById('qr-code');wrap.innerHTML='';
-  try{new QRCode(wrap,{text:url,width:140,height:140,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});}
-  catch(e){wrap.innerHTML='<div style="color:#333;font-family:monospace;font-size:10px;padding:10px;">Error QR</div>';}
-  const sidebar=document.getElementById('qr-sidebar');
-  sidebar.style.display='flex';sidebar.classList.add('visible');
-}
+function applyQr(){const url=document.getElementById('qr-url-input').value.trim();if(!url)return;ls.set(QR_URL_KEY,url);renderQR(url);closeQrConfig();}
+function renderQR(url){const wrap=document.getElementById('qr-code');wrap.innerHTML='';try{new QRCode(wrap,{text:url,width:140,height:140,colorDark:"#000000",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});}catch(e){}const s=document.getElementById('qr-sidebar');s.style.display='flex';s.classList.add('visible');}
 
-// ── Editor ──────────────────────────────────────────────────────────────────────
 function openEditor(){editorList=songs.map(s=>({...s}));renderEditorList();document.getElementById('editor').classList.add('open');}
 function closeEditor(){document.getElementById('editor').classList.remove('open');}
 function renderEditorList(){
   document.getElementById('editor-count').textContent=editorList.length+' CANCIONES';
   const el=document.getElementById('editor-list');
   if(!editorList.length){el.innerHTML='<div style="text-align:center;color:#333;font-family:monospace;font-size:12px;letter-spacing:3px;margin-top:40px;">SIN CANCIONES</div>';return;}
-  el.innerHTML=editorList.map((s,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
-      <div style="display:flex;flex-direction:column;gap:2px;">
-        <button onclick="editorMove(${i},-1)" style="background:none;border:none;color:#444;font-size:10px;padding:1px 4px;">▲</button>
-        <button onclick="editorMove(${i},1)"  style="background:none;border:none;color:#444;font-size:10px;padding:1px 4px;">▼</button>
-      </div>
-      <div style="width:24px;text-align:center;color:#444;font-family:monospace;font-size:12px;">${i+1}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:0.95rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div>
-        <div style="font-size:10px;color:#555;font-family:monospace;">${s.artist}</div>
-      </div>
-      <button onclick="editorEdit(${i})" style="background:none;border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#555;padding:5px 10px;font-family:monospace;font-size:9px;letter-spacing:1px;">EDITAR</button>
-      <button onclick="editorRemove(${i})" style="background:none;border:1px solid rgba(255,40,40,0.2);border-radius:5px;color:#ff4040;padding:5px 10px;font-family:monospace;font-size:9px;letter-spacing:1px;">✕</button>
-    </div>`).join('');
+  el.innerHTML=editorList.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:7px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
+    <div style="display:flex;flex-direction:column;gap:2px;"><button onclick="editorMove(${i},-1)" style="background:none;border:none;color:#444;font-size:10px;padding:1px 4px;">&#9650;</button><button onclick="editorMove(${i},1)" style="background:none;border:none;color:#444;font-size:10px;padding:1px 4px;">&#9660;</button></div>
+    <div style="width:24px;text-align:center;color:#444;font-family:monospace;font-size:12px;">${i+1}</div>
+    <div style="flex:1;min-width:0;"><div style="font-size:0.95rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div><div style="font-size:10px;color:#555;font-family:monospace;">${s.artist}</div></div>
+    <button onclick="editorEdit(${i})" style="background:none;border:1px solid rgba(255,255,255,0.08);border-radius:5px;color:#555;padding:5px 10px;font-family:monospace;font-size:9px;letter-spacing:1px;">EDITAR</button>
+    <button onclick="editorRemove(${i})" style="background:none;border:1px solid rgba(255,40,40,0.2);border-radius:5px;color:#ff4040;padding:5px 10px;font-family:monospace;font-size:9px;letter-spacing:1px;">&#10005;</button>
+  </div>`).join('');
 }
-function addSong(){
-  const t=document.getElementById('new-title').value.trim();
-  const a=document.getElementById('new-artist').value.trim();
-  if(!t) return;
-  editorList.push({smmt_songs:Date.now(),title:t,artist:a,position:editorList.length+1});
-  document.getElementById('new-title').value='';
-  document.getElementById('new-artist').value='';
-  renderEditorList();
-}
+function addSong(){const t=document.getElementById('new-title').value.trim();const a=document.getElementById('new-artist').value.trim();if(!t)return;editorList.push({smmt_songs:Date.now(),title:t,artist:a,position:editorList.length+1});document.getElementById('new-title').value='';document.getElementById('new-artist').value='';renderEditorList();}
 function editorRemove(i){editorList.splice(i,1);renderEditorList();}
-function editorMove(i,dir){
-  const j=i+dir;if(j<0||j>=editorList.length)return;
-  [editorList[i],editorList[j]]=[editorList[j],editorList[i]];renderEditorList();
-}
-function editorEdit(i){
-  const s=editorList[i];
-  const nt=prompt('Título:',s.title);if(nt===null)return;
-  const na=prompt('Artista:',s.artist);if(na===null)return;
-  s.title=nt.trim()||s.title;s.artist=na.trim();renderEditorList();
-}
-async function saveEditor(){
-  if(!editorList.length)return;
-  document.getElementById('save-btn').textContent='GUARDANDO...';
-  await saveSongsDB(editorList);
-  songs=await loadSongs();
-  closeEditor();renderDJ();
-  toast('PLAYLIST ACTUALIZADA');
-  document.getElementById('save-btn').textContent='✓ GUARDAR Y APLICAR';
-}
+function editorMove(i,dir){const j=i+dir;if(j<0||j>=editorList.length)return;[editorList[i],editorList[j]]=[editorList[j],editorList[i]];renderEditorList();}
+function editorEdit(i){const s=editorList[i];const nt=prompt('Titulo:',s.title);if(nt===null)return;const na=prompt('Artista:',s.artist);if(na===null)return;s.title=nt.trim()||s.title;s.artist=na.trim();renderEditorList();}
+async function saveEditor(){if(!editorList.length)return;document.getElementById('save-btn').textContent='GUARDANDO...';await saveSongsDB(editorList);songs=await loadSongs();closeEditor();renderDJ();toast('PLAYLIST ACTUALIZADA');document.getElementById('save-btn').textContent='&#10003; GUARDAR Y APLICAR';}
 
 init();
 </script>
